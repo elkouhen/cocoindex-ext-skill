@@ -21,7 +21,9 @@ Utilise les tools MCP `search_findings`, `findings_summary`,
 4. **Initialiser et indexer le repo cible** :
    ```bash
    cd <votre-repo>
-   cccf init                # détecte .semgrep.yml/semgrep.yml/.semgrep, ou --rules <chemin-ou-pack>
+   cccf init                # détecte .semgrep.yml/semgrep.yml/.semgrep ;
+                              # sinon, --rules <chemin-ou-pack>, sinon repli
+                              # automatique sur le pack p/security-audit
    cccf index
    ```
 5. **Enregistrer le serveur MCP `cccf`** auprès du client (ex. `.mcp.json` à
@@ -40,9 +42,11 @@ Utilise les tools MCP `search_findings`, `findings_summary`,
 
 ## Configurer les règles Semgrep à analyser
 
-`cccf` n'embarque aucune règle par défaut : le champ `rules` de
-`.cccf/config.yml` est le seul point de contrôle de ce qui est analysé.
-Sources valides (mélangeables dans une même liste) :
+Le champ `rules` de `.cccf/config.yml` est le point de contrôle de ce qui
+est analysé. Sans rien de spécifié, `cccf init` utilise déjà le pack
+registry `p/security-audit` par défaut (voir Installation, étape 4) — cette
+section sert à le personnaliser. Sources valides (mélangeables dans une
+même liste) :
 
 - **Fichier de règles local**, ex. `rules/rules.yml`, au format Semgrep
   standard (`rules: [{id, pattern, message, severity, languages,
