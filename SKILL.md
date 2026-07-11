@@ -38,6 +38,45 @@ Utilise les tools MCP `search_findings`, `findings_summary`,
    `search_findings` (étapes 5-6 du Workflow 3) suffisent à vérifier la
    disparition du finding, avec une confiance moindre qu'un scan frais.
 
+## Configurer les règles Semgrep à analyser
+
+`cccf` n'embarque aucune règle par défaut : le champ `rules` de
+`.cccf/config.yml` est le seul point de contrôle de ce qui est analysé.
+Sources valides (mélangeables dans une même liste) :
+
+- **Fichier de règles local**, ex. `rules/rules.yml`, au format Semgrep
+  standard (`rules: [{id, pattern, message, severity, languages,
+  metadata: {cwe, owasp}}, ...]`).
+- **Dossier de règles** : chemin vers un dossier contenant plusieurs YAML,
+  chargés ensemble.
+- **Pack registry Semgrep**, ex. `p/security-audit`, `p/python`,
+  `p/owasp-top-ten` — accès réseau nécessaire au premier usage (Semgrep
+  télécharge/cache le pack).
+
+Définir à l'init (`--rules` est répétable) :
+```bash
+cccf init --rules rules/rules.yml --rules p/security-audit
+```
+ou éditer directement `.cccf/config.yml` a posteriori :
+```yaml
+rules:
+  - rules/rules.yml
+  - p/security-audit
+```
+Puis appliquer le changement à tout le repo avec un scan complet :
+```bash
+cccf index --full
+```
+**Piège pour un agent** : le tool MCP `reindex_findings` est toujours
+incrémental (il ne re-scanne que les fichiers modifiés). Après un changement
+de `rules`, `reindex_findings` seul ne réanalyse PAS les fichiers déjà
+indexés avec l'ancienne config — il faut passer par `cccf index --full` en
+CLI (pas d'équivalent `--full` côté MCP).
+
+`min_severity` (`INFO`/`WARNING`/`ERROR`, même fichier) filtre ce qui est
+conservé en base parmi ce que les règles trouvent — un réglage indépendant
+du choix des règles elles-mêmes.
+
 ## Workflow 1 — Explorer les problèmes connus
 
 1. Appeler `search_findings(query="<description du problème>", limit=5)`.
