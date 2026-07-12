@@ -67,14 +67,14 @@ not install Semgrep, `cccf`, or register the MCP servers. Before the first use
 of any tool below (`findings_summary`, `search_findings`, ...), check whether
 they respond; if not, run the steps below yourself (or ask the user to).
 
-0. **This skill**: `npx skills add https://github.com/elkouhen/cocoindex-ext-skill`
+0. **This skill**: `npx skills add https://github.com/elkouhen/ccc-findings-skill`
    (mono-skill repo — installs `cccf` directly, no `--skill` flag needed).
 1. **Semgrep** (required by `cccf`): `pipx install semgrep` or
    `brew install semgrep`.
 2. **cccf**: not published on PyPI — install from source:
    ```bash
-   uv tool install git+https://github.com/elkouhen/cocoindex-ext
-   # or: pipx install git+https://github.com/elkouhen/cocoindex-ext
+   uv tool install git+https://github.com/elkouhen/ccc-findings
+   # or: pipx install git+https://github.com/elkouhen/ccc-findings
    ```
 3. **Embedding model**: downloaded automatically on the first `cccf index`
    (`sentence-transformers`, default model `Snowflake/snowflake-arctic-embed-xs`,
@@ -91,7 +91,7 @@ they respond; if not, run the steps below yourself (or ask the user to).
 5. **Register both required MCP servers** with the client (for example
    `.mcp.json` at the project root for Claude Code, or your client's
    equivalent). Both are needed: `cccf` for the indexed findings search
-   (source: https://github.com/elkouhen/cocoindex-ext) and the official
+   (source: https://github.com/elkouhen/ccc-findings) and the official
    Semgrep MCP for fresh post-patch verification (step 4 of Workflow 3):
    ```json
    {
