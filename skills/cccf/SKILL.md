@@ -1,34 +1,34 @@
 ---
-name: cccf
-description: "This skill should be used when code search is needed (whether explicitly requested or as part of completing a task), when indexing the codebase after changes, or when the user asks about ccc, cocoindex-code, or the codebase index. Trigger phrases include 'search the codebase', 'find code related to', 'update the index', 'ccc', 'cocoindex-code'. It returns Semgrep findings."
+name: cccff
+description: "This skill should be used when code search is needed (whether explicitly requested or as part of completing a task), when indexing the codebase after changes, or when the user asks about cccf, cocoindex-code, or the codebase index. Trigger phrases include 'search the codebase', 'find code related to', 'update the index', 'cccf', 'cocoindex-code'. It returns Semgrep findings."
 ---
 
-# ccc - Semantic Code Search & Indexing
+# cccf - Semantic Code Search & Indexing
 
-`ccc` is the CLI for CocoIndex Code, providing semantic search over the current codebase and index management.
+`cccf` is the CLI for CocoIndex Code, providing semantic search over the current codebase and index management.
 
 ## Ownership
 
-The agent owns the `ccc` lifecycle for the current project — initialization, indexing, and searching. Do not ask the user to perform these steps; handle them automatically.
+The agent owns the `cccf` lifecycle for the current project — initialization, indexing, and searching. Do not ask the user to perform these steps; handle them automatically.
 
-- **Initialization**: If `ccc search` or `ccc index` fails with an initialization error (e.g., "Not in an initialized project directory"), run `ccc init` from the project root directory, then `ccc index` to build the index, then retry the original command.
-- **Index freshness**: Keep the index up to date by running `ccc index` (or `ccc search --refresh`) when the index may be stale — e.g., at the start of a session, or after making significant code changes (new files, refactors, renamed modules). There is no need to re-index between consecutive searches if no code was changed in between.
-- **Installation**: If `ccc` itself is not found (command not found), refer to [management.md](references/management.md) for installation instructions and inform the user.
+- **Initialization**: If `cccf search` or `cccf index` fails with an initialization error (e.g., "Not in an initialized project directory"), run `cccf init` from the project root directory, then `cccf index` to build the index, then retry the original command.
+- **Index freshness**: Keep the index up to date by running `cccf index` (or `cccf search --refresh`) when the index may be stale — e.g., at the start of a session, or after making significant code changes (new files, refactors, renamed modules). There is no need to re-index between consecutive searches if no code was changed in between.
+- **Installation**: If `cccf` itself is not found (command not found), refer to [management.md](references/management.md) for installation instructions and inform the user.
 
 ## Searching the Codebase
 
 To perform a semantic search:
 
 ```bash
-ccc search <query terms>
+cccf search <query terms>
 ```
 
 The query should describe the concept, functionality, or behavior to find, not exact code syntax. For example:
 
 ```bash
-ccc search database connection pooling
-ccc search user authentication flow
-ccc search error handling retry logic
+cccf search database connection pooling
+cccf search user authentication flow
+cccf search error handling retry logic
 ```
 
 ### Filtering Results
@@ -36,13 +36,13 @@ ccc search error handling retry logic
 - **By language** (`--lang`, repeatable): restrict results to specific languages.
 
   ```bash
-  ccc search --lang python --lang markdown database schema
+  cccf search --lang python --lang markdown database schema
   ```
 
 - **By path** (`--path`): restrict results to a glob pattern relative to project root. If omitted, defaults to the current working directory (only results under that subdirectory are returned).
 
   ```bash
-  ccc search --path 'src/api/*' request validation
+  cccf search --path 'src/api/*' request validation
   ```
 
 ### Pagination
@@ -50,7 +50,7 @@ ccc search error handling retry logic
 Results default to the first page. To retrieve additional results:
 
 ```bash
-ccc search --offset 5 --limit 5 database schema
+cccf search --offset 5 --limit 5 database schema
 ```
 
 If all returned results look relevant, use `--offset` to fetch the next page — there are likely more useful matches beyond the first page.
