@@ -64,7 +64,11 @@ When the request asks for a fix:
 
 1. **Semgrep** (required by `cccf`): `pipx install semgrep` or
    `brew install semgrep`.
-2. **cccf**: `uv tool install ccc-findings` or `pipx install ccc-findings`.
+2. **cccf**: not published on PyPI — install from source:
+   ```bash
+   uv tool install git+https://github.com/elkouhen/cocoindex-ext
+   # or: pipx install git+https://github.com/elkouhen/cocoindex-ext
+   ```
 3. **Embedding model**: downloaded automatically on the first `cccf index`
    (`sentence-transformers`, default model `Snowflake/snowflake-arctic-embed-xs`,
    ~100 MB). Network access is required once; later runs reuse the local cache
@@ -77,19 +81,23 @@ When the request asks for a fix:
                             # back automatically to the p/security-audit pack
    cccf index
    ```
-5. **Register the `cccf` MCP server** with the client (for example `.mcp.json`
-   at the project root for Claude Code, or your client's equivalent):
+5. **Register both required MCP servers** with the client (for example
+   `.mcp.json` at the project root for Claude Code, or your client's
+   equivalent). Both are needed: `cccf` for the indexed findings search
+   (source: https://github.com/elkouhen/cocoindex-ext) and the official
+   Semgrep MCP for fresh post-patch verification (step 4 of Workflow 3):
    ```json
-   {"mcpServers": {"cccf": {"command": "cccf", "args": ["mcp"]}}}
+   {
+     "mcpServers": {
+       "cccf": {"command": "cccf", "args": ["mcp"]},
+       "semgrep": {"command": "uvx", "args": ["semgrep-mcp"]}
+     }
+   }
    ```
-6. **(Recommended) Also register the official Semgrep MCP**, used in step 4 of
-   Workflow 3 for fresh post-patch verification:
-   ```json
-   {"mcpServers": {"semgrep": {"command": "uvx", "args": ["semgrep-mcp"]}}}
-   ```
-   Without it, that step is simply skipped: `reindex_findings` +
-   `search_findings` (steps 5-6 of Workflow 3) are enough to verify that the
-   finding disappeared, with lower confidence than a fresh scan.
+   If the Semgrep MCP is unreachable in a given environment, that
+   verification step is simply skipped: `reindex_findings` + `search_findings`
+   (steps 5-6 of Workflow 3) are enough to confirm a finding disappeared,
+   with lower confidence than a fresh scan.
 
 ## Configure the Semgrep rules to analyze
 
