@@ -101,14 +101,16 @@ For microservice audits, prefer the following sequence:
 2. `cccf endpoints` — inspect the static REST/Kafka inventory.
 3. `cccf graph` — look for outbound REST calls inside Kafka consumers first;
    use it before diving into individual findings when the symptom is
-   distributed blocking or intermittent lock-up. With `--workspace <root>`
-   (a parent directory containing several Maven microservices/modules,
-   read-only, see `cccf workspace`), also reports real cross-service cycles
-   and hotspots instead of an empty result.
+   distributed blocking or intermittent lock-up. For a monorepo containing
+   several Maven modules, indexing once at the parent directory is enough:
+   findings/endpoints are attributed to their module automatically, and
+   `cccf graph` (no flag needed) reports real cross-module cycles and
+   hotspots. Only use `--workspace <root>` when the services actually live
+   in **separate** repos indexed independently (see `cccf workspace`).
 4. `cccf flow <topic-or-route>` — once `graph` (or `endpoints`) surfaces a
    topic or route of interest, trace every producer/consumer or
    server/caller site for it, plus the findings that overlap each site.
-   Same `--workspace <root>` option to trace across services. Prefer this
+   Same module-attribution/`--workspace` behavior as `graph`. Prefer this
    over grepping the codebase for a topic name by hand.
 5. `cccf findings <query>` — search vulnerabilities / technical debt by
    description or rule.
@@ -128,8 +130,12 @@ Semgrep findings that overlap each site. A typical loop:
 
 ```bash
 cccf flow orders.created                          # who produces/consumes this topic?
-cccf flow orders.created --workspace /path/to/root # same, across a multi-service directory
+cccf flow orders.created --workspace /path/to/root # same, across separately-indexed repos
 ```
+
+If the modules already share a single index (a monorepo indexed once at
+its root), `service` in the output already reflects each site's Maven
+module — no flag needed.
 
 Then read the sites, fix the issue, `cccf index` (or the `reindex_findings`
 MCP tool) to refresh, and re-run `cccf flow` to confirm the finding is gone.
