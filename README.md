@@ -23,16 +23,22 @@ automatically by the agent.
   `cccf init` (see **Default Rules** in `SKILL.md`).
 - [`skills/cccf/rules/rest/`](skills/cccf/rules/rest/) — bundled Semgrep
   rule pack (Java) that inventories REST endpoints (Spring routes exposed,
-  `RestTemplate` call sites) for `cccf graph` — not a findings pack, not run
-  automatically at `cccf init` yet (see `ccc-findings`'s `archive/
-  BACKLOG-10.md` K11).
+  `RestTemplate` call sites) for `cccf endpoints`/`cccf graph` — not a
+  findings pack, run by default on `cccf init` (see **Default Rules** in
+  `SKILL.md`; see `ccc-findings`'s `archive/BACKLOG-10.md` K11).
 - [`skills/cccf/rules/kafka/`](skills/cccf/rules/kafka/) — bundled Semgrep
   rule pack (Java/Spring) that inventories Kafka producers/consumers
   (`@KafkaListener`, `KafkaTemplate.send`, `ProducerRecord`) for `cccf
-  graph`, resolving topic names given as Spring properties
+  endpoints`/`cccf graph`, resolving topic names given as Spring properties
   (`${app.kafka.topics.orders}`) against `application.yml`/`.properties`
-  when present — not a findings pack, not run automatically at `cccf init`
-  yet (see `ccc-findings`'s `archive/BACKLOG-10.md` K2).
+  when present — not a findings pack, run by default on `cccf init` (see
+  `ccc-findings`'s `archive/BACKLOG-10.md` K2).
+- [`skills/cccf/rules/kafka-security/`](skills/cccf/rules/kafka-security/)
+  — bundled Semgrep rule pack (Java/Spring) for Kafka security findings:
+  hardcoded SASL credentials, `PLAINTEXT` security protocol, a
+  `JsonDeserializer` trusting all packages, raw Java deserialization — run
+  by default on `cccf init` (see `ccc-findings`'s `archive/BACKLOG-10.md`
+  K8, security volet).
 
 ## Installation
 

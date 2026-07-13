@@ -29,7 +29,7 @@ The agent owns the `cccf` lifecycle for the current project — initialization, 
 
 ### Default Rules for Java Microservice Audits
 
-This skill bundles four Semgrep rule packs:
+This skill bundles five Semgrep rule packs:
 
 - `default` ([`rules/default/`](rules/default/)) — Java rules for bounded,
   streaming-safe handling of files and Kafka events: bounded streaming for
@@ -53,14 +53,22 @@ This skill bundles four Semgrep rule packs:
 - `kafka` ([`rules/kafka/`](rules/kafka/)) — Kafka endpoint inventory rules
   for `@KafkaListener`, `KafkaTemplate.send(...)`, and `ProducerRecord(...)`.
   These also feed `cccf endpoints` / `cccf graph`, not the findings list.
+- `kafka-security` ([`rules/kafka-security/`](rules/kafka-security/)) —
+  Kafka security findings (see `ccc-findings`'s `archive/BACKLOG-10.md`
+  K8, security volet): SASL credentials hardcoded in source,
+  `security.protocol` set to `PLAINTEXT`, a `JsonDeserializer` trusting all
+  packages (arbitrary class instantiation from an untrusted message), and
+  raw Java deserialization (`ObjectInputStream.readObject`) — Java/Spring
+  only.
 
-Run all four packs **by default** on `cccf init`, unless the user explicitly
-asks for a different rule set:
+Run all five packs **by default** on `cccf init`, unless the user
+explicitly asks for a different rule set:
 
 1. If `.cccf/config.yml` doesn't exist yet, copy the pack directories
-   (`rules/default/`, `rules/liveness/`, `rules/rest/`, `rules/kafka/`) into
-   the target repo (e.g. `.cccf/rules/default/`, `.cccf/rules/liveness/`,
-   `.cccf/rules/rest/`, `.cccf/rules/kafka/`) — never pass an
+   (`rules/default/`, `rules/liveness/`, `rules/rest/`, `rules/kafka/`,
+   `rules/kafka-security/`) into the target repo (e.g.
+   `.cccf/rules/default/`, `.cccf/rules/liveness/`, `.cccf/rules/rest/`,
+   `.cccf/rules/kafka/`, `.cccf/rules/kafka-security/`) — never pass an
    absolute path back into the skill's own directory, since Semgrep derives
    rule identity from the `--config` path and an absolute path outside the
    repo breaks reproducibility across machines/checkouts.
@@ -71,7 +79,8 @@ asks for a different rule set:
      --rules .cccf/rules/default/b-kafka.yaml \
      --rules .cccf/rules/liveness/java.yaml \
      --rules .cccf/rules/rest/java.yaml \
-     --rules .cccf/rules/kafka/java.yaml
+     --rules .cccf/rules/kafka/java.yaml \
+     --rules .cccf/rules/kafka-security/java.yaml
    ```
    This takes priority over `cccf init`'s own auto-detection (local
    `.semgrep.yml`/`semgrep.yml`/`.semgrep`, or the `p/security-audit`
