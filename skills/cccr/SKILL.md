@@ -1,33 +1,33 @@
 ---
-name: cccf
-description: "This skill should be used for Java/Spring/Maven microservice audits with cccf: initializing the repo with the right Semgrep packs, indexing findings plus REST/Kafka endpoints, inspecting summary/endpoints/graph/findings, or running code search via ccc when needed. Trigger phrases include 'audit', 'microservice', 'Kafka', 'REST', 'cccf', 'Semgrep', 'finding', 'endpoint', 'graph', and 'search the codebase'."
+name: cccr
+description: "This skill should be used for Java/Spring/Maven microservice audits with cccr: initializing the repo with the right Semgrep packs, indexing findings plus REST/Kafka endpoints, inspecting summary/endpoints/graph/findings, or running code search via ccc when needed. Trigger phrases include 'audit', 'microservice', 'Kafka', 'REST', 'cccr', 'Semgrep', 'finding', 'endpoint', 'graph', and 'search the codebase'."
 ---
 
 > Adapted from cocoindex-code's own skill
 > ([`skills/ccc/SKILL.md`](https://github.com/cocoindex-io/cocoindex-code/blob/main/skills/ccc/SKILL.md),
-> Apache-2.0), renamed to `cccf` and extended to cover Semgrep findings.
+> Apache-2.0), renamed to `cccr` and extended to cover Semgrep findings.
 
-# cccf - Microservice Audit, Indexing & Findings
+# cccr - Microservice Audit, Indexing & Findings
 
-`cccf` is the audit CLI layered on top of Semgrep and, for code search only,
+`cccr` is the audit CLI layered on top of Semgrep and, for code search only,
 `ccc` (CocoIndex Code). For the target stack of this skill — **Java + Spring +
 Maven microservices** — it indexes:
 
-- Semgrep findings (`cccf summary`, `cccf findings`)
-- REST and Kafka endpoints (`cccf endpoints`)
+- Semgrep findings (`cccr summary`, `cccr findings`)
+- REST and Kafka endpoints (`cccr endpoints`)
 - derived blocking signals such as outbound REST calls inside Kafka consumers
-  (`cccf graph`)
+  (`cccr graph`)
 - who produces/consumes a given topic or route, across services
-  (`cccf flow`)
-- code search results enriched with findings (`cccf search`, via `ccc`)
+  (`cccr flow`)
+- code search results enriched with findings (`cccr search`, via `ccc`)
 
 ## Ownership
 
-The agent owns the `cccf` lifecycle for the current project — initialization, indexing, and searching. Do not ask the user to perform these steps; handle them automatically.
+The agent owns the `cccr` lifecycle for the current project — initialization, indexing, and searching. Do not ask the user to perform these steps; handle them automatically.
 
-- **Initialization**: If `cccf search` or `cccf index` fails with an initialization error (e.g., "Not in an initialized project directory"), run `cccf init` from the project root directory (see **Default Rules** below for which `--rules` to pass), then `cccf index` to build the index, then retry the original command.
-- **Index freshness**: Keep the index up to date by running `cccf index` (or `cccf search --refresh`) when the index may be stale — e.g., at the start of a session, or after making significant code changes (new files, refactors, renamed modules). There is no need to re-index between consecutive searches if no code was changed in between.
-- **Installation**: If `cccf` itself is not found (command not found), refer to [management.md](references/management.md) for installation instructions and inform the user.
+- **Initialization**: If `cccr search` or `cccr index` fails with an initialization error (e.g., "Not in an initialized project directory"), run `cccr init` from the project root directory (see **Default Rules** below for which `--rules` to pass), then `cccr index` to build the index, then retry the original command.
+- **Index freshness**: Keep the index up to date by running `cccr index` (or `cccr search --refresh`) when the index may be stale — e.g., at the start of a session, or after making significant code changes (new files, refactors, renamed modules). There is no need to re-index between consecutive searches if no code was changed in between.
+- **Installation**: If `cccr` itself is not found (command not found), refer to [management.md](references/management.md) for installation instructions and inform the user.
 
 ### Default Rules for Java Microservice Audits
 
@@ -44,104 +44,104 @@ This skill bundles five Semgrep rule packs:
   design-rules.md#rN` in each rule's metadata keeps resolving.
 - `liveness` ([`rules/liveness/`](rules/liveness/)) — cross-cutting rules
   for distributed-system blocking points in a REST + Kafka microservices
-  landscape (see `ccc-findings`'s `archive/BACKLOG-10.md` K8): missing HTTP
+  landscape (see `ccc-radar`'s `archive/BACKLOG-10.md` K8): missing HTTP
   timeouts, blocking waits without a timeout, a synchronous REST call
   inside a Kafka consumer handler, and a network call held under a lock —
   Java/Spring only (`java.yaml`: `RestTemplate`, `@KafkaListener`,
   `synchronized`), matching the target stack (Java + Spring + Maven).
 - `rest` ([`rules/rest/`](rules/rest/)) — REST endpoint inventory rules for
   Spring controllers and `RestTemplate` client calls. These do **not** create
-  findings; they populate `cccf endpoints` / `cccf graph`.
+  findings; they populate `cccr endpoints` / `cccr graph`.
 - `kafka` ([`rules/kafka/`](rules/kafka/)) — Kafka endpoint inventory rules
   for `@KafkaListener`, `KafkaTemplate.send(...)`, and `ProducerRecord(...)`.
-  These also feed `cccf endpoints` / `cccf graph`, not the findings list.
+  These also feed `cccr endpoints` / `cccr graph`, not the findings list.
 - `kafka-security` ([`rules/kafka-security/`](rules/kafka-security/)) —
-  Kafka security findings (see `ccc-findings`'s `archive/BACKLOG-10.md`
+  Kafka security findings (see `ccc-radar`'s `archive/BACKLOG-10.md`
   K8, security volet): SASL credentials hardcoded in source,
   `security.protocol` set to `PLAINTEXT`, a `JsonDeserializer` trusting all
   packages (arbitrary class instantiation from an untrusted message), and
   raw Java deserialization (`ObjectInputStream.readObject`) — Java/Spring
   only.
 
-Run all five packs **by default** on `cccf init`, unless the user
+Run all five packs **by default** on `cccr init`, unless the user
 explicitly asks for a different rule set:
 
-1. If `.cccf/config.yml` doesn't exist yet, copy the pack directories
+1. If `.cccr/config.yml` doesn't exist yet, copy the pack directories
    (`rules/default/`, `rules/liveness/`, `rules/rest/`, `rules/kafka/`,
    `rules/kafka-security/`) into the target repo (e.g.
-   `.cccf/rules/default/`, `.cccf/rules/liveness/`, `.cccf/rules/rest/`,
-   `.cccf/rules/kafka/`, `.cccf/rules/kafka-security/`) — never pass an
+   `.cccr/rules/default/`, `.cccr/rules/liveness/`, `.cccr/rules/rest/`,
+   `.cccr/rules/kafka/`, `.cccr/rules/kafka-security/`) — never pass an
    absolute path back into the skill's own directory, since Semgrep derives
    rule identity from the `--config` path and an absolute path outside the
    repo breaks reproducibility across machines/checkouts.
-2. Run `cccf init` with one `--rules` per copied file:
+2. Run `cccr init` with one `--rules` per copied file:
    ```bash
-   cccf init \
-     --rules .cccf/rules/default/a-memoire-fichiers.yaml \
-     --rules .cccf/rules/default/b-kafka.yaml \
-     --rules .cccf/rules/liveness/java.yaml \
-     --rules .cccf/rules/rest/java.yaml \
-     --rules .cccf/rules/kafka/java.yaml \
-     --rules .cccf/rules/kafka-security/java.yaml
+   cccr init \
+     --rules .cccr/rules/default/a-memoire-fichiers.yaml \
+     --rules .cccr/rules/default/b-kafka.yaml \
+     --rules .cccr/rules/liveness/java.yaml \
+     --rules .cccr/rules/rest/java.yaml \
+     --rules .cccr/rules/kafka/java.yaml \
+     --rules .cccr/rules/kafka-security/java.yaml
    ```
-   This takes priority over `cccf init`'s own auto-detection (local
+   This takes priority over `cccr init`'s own auto-detection (local
    `.semgrep.yml`/`semgrep.yml`/`.semgrep`, or the `p/security-audit`
    registry fallback) — explicit `--rules` always wins.
 3. If the user names additional or different rules, merge them in with more
    `--rules` flags rather than dropping the default packs, unless the user
    asks to replace them.
-4. If `.cccf/config.yml` already exists, leave it as-is (`cccf init` refuses
+4. If `.cccr/config.yml` already exists, leave it as-is (`cccr init` refuses
    to overwrite it) — the default packs only apply to fresh initialization.
 
 ## Audit Workflow
 
 For microservice audits, prefer the following sequence:
 
-1. `cccf summary` — quick posture: severity distribution and hot rules.
-2. `cccf endpoints` — inspect the static REST/Kafka inventory.
-3. `cccf graph` — look for outbound REST calls inside Kafka consumers first;
+1. `cccr summary` — quick posture: severity distribution and hot rules.
+2. `cccr endpoints` — inspect the static REST/Kafka inventory.
+3. `cccr graph` — look for outbound REST calls inside Kafka consumers first;
    use it before diving into individual findings when the symptom is
    distributed blocking or intermittent lock-up. For a monorepo containing
    several Maven modules, indexing once at the parent directory is enough:
    findings/endpoints are attributed to their module automatically, and
-   `cccf graph` (no flag needed) reports real cross-module cycles and
+   `cccr graph` (no flag needed) reports real cross-module cycles and
    hotspots. Only use `--workspace <root>` when the services actually live
-   in **separate** repos indexed independently (see `cccf workspace`).
-4. `cccf flow <topic-or-route>` — once `graph` (or `endpoints`) surfaces a
+   in **separate** repos indexed independently (see `cccr workspace`).
+4. `cccr flow <topic-or-route>` — once `graph` (or `endpoints`) surfaces a
    topic or route of interest, trace every producer/consumer or
    server/caller site for it, plus the findings that overlap each site.
    Same module-attribution/`--workspace` behavior as `graph`. Prefer this
    over grepping the codebase for a topic name by hand.
-5. `cccf findings <query>` — search vulnerabilities / technical debt by
+5. `cccr findings <query>` — search vulnerabilities / technical debt by
    description or rule.
-6. `cccf search <query>` — only when you need semantic code search; this is
+6. `cccr search <query>` — only when you need semantic code search; this is
    the part that depends on `ccc`.
 
-Do not jump straight to `cccf search` for every audit question: `summary`,
+Do not jump straight to `cccr search` for every audit question: `summary`,
 `endpoints`, `graph`, `flow`, and `findings` are cheaper and more directly
 aligned with architecture review.
 
-### Tracing a Flow (`cccf flow`)
+### Tracing a Flow (`cccr flow`)
 
-`cccf flow <query>` resolves `<query>` to a Kafka topic or REST route — exact
+`cccr flow <query>` resolves `<query>` to a Kafka topic or REST route — exact
 name first, then an unambiguous case-insensitive substring — and lists every
 site for it (producers/consumers, or servers/callers) together with the
 Semgrep findings that overlap each site. A typical loop:
 
 ```bash
-cccf flow orders.created                          # who produces/consumes this topic?
-cccf flow orders.created --workspace /path/to/root # same, across separately-indexed repos
+cccr flow orders.created                          # who produces/consumes this topic?
+cccr flow orders.created --workspace /path/to/root # same, across separately-indexed repos
 ```
 
 If the modules already share a single index (a monorepo indexed once at
 its root), `service` in the output already reflects each site's Maven
 module — no flag needed.
 
-Then read the sites, fix the issue, `cccf index` (or the `reindex_findings`
-MCP tool) to refresh, and re-run `cccf flow` to confirm the finding is gone.
+Then read the sites, fix the issue, `cccr index` (or the `reindex_findings`
+MCP tool) to refresh, and re-run `cccr flow` to confirm the finding is gone.
 A query that matches no topic/route, or matches more than one ambiguously,
 exits with an explicit error (code 2) rather than guessing — try a more
-specific query, or use `cccf endpoints`/`cccf graph` first to find the exact
+specific query, or use `cccr endpoints`/`cccr graph` first to find the exact
 topic/route name.
 
 ## Searching the Codebase
@@ -149,15 +149,15 @@ topic/route name.
 To perform a semantic search:
 
 ```bash
-cccf search <query terms>
+cccr search <query terms>
 ```
 
 The query should describe the concept, functionality, or behavior to find, not exact code syntax. For example:
 
 ```bash
-cccf search database connection pooling
-cccf search user authentication flow
-cccf search error handling retry logic
+cccr search database connection pooling
+cccr search user authentication flow
+cccr search error handling retry logic
 ```
 
 ### Filtering Results
@@ -165,13 +165,13 @@ cccf search error handling retry logic
 - **By language** (`--lang`, repeatable): restrict results to specific languages.
 
   ```bash
-  cccf search --lang python --lang markdown database schema
+  cccr search --lang python --lang markdown database schema
   ```
 
 - **By path** (`--path`): restrict results to a glob pattern relative to project root. If omitted, defaults to the current working directory (only results under that subdirectory are returned).
 
   ```bash
-  cccf search --path 'src/api/*' request validation
+  cccr search --path 'src/api/*' request validation
   ```
 
 ### Pagination
@@ -179,7 +179,7 @@ cccf search error handling retry logic
 Results default to the first page. To retrieve additional results:
 
 ```bash
-cccf search --offset 5 --limit 5 database schema
+cccr search --offset 5 --limit 5 database schema
 ```
 
 If all returned results look relevant, use `--offset` to fetch the next page — there are likely more useful matches beyond the first page.
@@ -193,12 +193,12 @@ Search results include file paths and line ranges. To explore a result in more d
 
 ## Searching Findings
 
-`cccf search` (above) enriches code results with any Semgrep findings that
+`cccr search` (above) enriches code results with any Semgrep findings that
 overlap them. To search the indexed findings **on their own** — in natural
-language, without a code search — use `cccf findings` instead:
+language, without a code search — use `cccr findings` instead:
 
 ```bash
-cccf findings <query terms>
+cccr findings <query terms>
 ```
 
 Use this when the question is about a vulnerability, security issue, piece of
@@ -208,15 +208,15 @@ technical debt, or a specific rule/finding, rather than about code semantics.
 
 - **By severity** (`--severity`): keep only findings at or above this level (`INFO` / `WARNING` / `ERROR`).
 - **By rule** (`--rule`): keep only findings matching this exact `rule_id`.
-- **By path** (`--path`): restrict to a glob pattern, same style as `cccf search --path`.
+- **By path** (`--path`): restrict to a glob pattern, same style as `cccr search --path`.
 
 ```bash
-cccf findings sql injection --severity ERROR --path 'app/*'
+cccr findings sql injection --severity ERROR --path 'app/*'
 ```
 
 ### Pagination and Output
 
-- `--limit` / `--offset` paginate results, same as `cccf search` (default limit 5).
+- `--limit` / `--offset` paginate results, same as `cccr search` (default limit 5).
 - `--context` adds 5 lines of surrounding code (before/after) to each finding, when the source file is still readable.
 - `--json` returns the stable `FindingHit` schema instead of the text render — this is also the shape returned by the MCP tool `search_findings`.
 
@@ -226,11 +226,11 @@ For a broad, low-cost overview instead of a targeted search (e.g. "what's our
 security posture", "any critical findings"), prefer:
 
 ```bash
-cccf summary
+cccr summary
 ```
 
 This returns totals by severity, the top 10 rules by count, and counts by
-top-level directory — much cheaper than a full `cccf findings` search when the
+top-level directory — much cheaper than a full `cccr findings` search when the
 question isn't about a specific file, rule, or vulnerability class. Add
 `--json` for structured output (matches the MCP tool `findings_summary`).
 
@@ -239,12 +239,12 @@ question isn't about a specific file, rule, or vulnerability class. Add
 Prefer the least expensive query that answers the question, escalating only
 as needed:
 
-1. **Architecture overview** — `cccf summary`, then `cccf endpoints`.
-2. **Distributed blocking suspicion** — `cccf graph`.
-3. **Targeted findings lookup** — `cccf findings <query>`.
-4. **Code + findings** — `cccf search <query>` when the question is primarily about code semantics.
+1. **Architecture overview** — `cccr summary`, then `cccr endpoints`.
+2. **Distributed blocking suspicion** — `cccr graph`.
+3. **Targeted findings lookup** — `cccr findings <query>`.
+4. **Code + findings** — `cccr search <query>` when the question is primarily about code semantics.
 
-If `.cccf/findings.db` doesn't exist yet, both `cccf findings` and `cccf summary` exit with `Index absent. Lancez d'abord: cccf index` (exit code 2) — run `cccf index` and retry, same as the index-freshness rule under Ownership above.
+If `.cccr/findings.db` doesn't exist yet, both `cccr findings` and `cccr summary` exit with `Index absent. Lancez d'abord: cccr index` (exit code 2) — run `cccr index` and retry, same as the index-freshness rule under Ownership above.
 
 ## Settings
 
