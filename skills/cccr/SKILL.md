@@ -98,6 +98,22 @@ cccr modules show shared-domain
 cccr modules graph
 ```
 
+`cccr topics show <topic>` and microservice summaries include Java payload
+types for Kafka messages when they are statically explicit. Treat a missing
+type as unknown: do not derive it from a topic name or serializer setting.
+
+When a project uses `getTopics().getXxx()` for producers and
+`${kafka.topics.xxx.name}` in `@KafkaListener` annotations, index it with:
+
+```bash
+cccr index --topic-strategy strategy1
+```
+
+This opt-in manual-engine strategy maps `getAbcDefGhiJkl()` and `abc_def_ghi_jkl`
+to physical topic `ABC_DEF_GHI_JKL`, replaces standard extraction at the covered
+source locations, and triggers a full refresh when the strategy changes. It is unavailable with
+`--engine cocoindex`.
+
 Use `cccr integrations` for a compact project-wide HTTP/Kafka inventory. Use
 `cccr graph` for the microservice interaction graph; it is distinct from
 module build dependencies.
