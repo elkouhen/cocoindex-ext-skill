@@ -115,7 +115,8 @@ source locations, and triggers a full refresh when the strategy changes. In a
 `Rest*Config*` class it also recognizes configured HTTP dependencies: uppercase
 domain constants name an indexed peer, while
 `getRest().get("xxx")` adds `xxx` as an external
-microservice linked by HTTP. It is unavailable with `--engine cocoindex`.
+microservice linked by HTTP; visual exports render it as a triangle. It is
+unavailable with `--engine cocoindex`.
 
 Use `cccr integrations` for a compact project-wide HTTP/Kafka inventory. Use
 `cccr graph` for the microservice interaction graph; it is distinct from
